@@ -36,6 +36,7 @@ v0 = v_max;
 
 % Final desired values
 Tf = 0;     %Trying to eradicate the tumor
+tf = 50;
 
 % mF = mEmpty; %Assume that we use all of the fuel
 
@@ -64,8 +65,8 @@ vUpp = v_max; % Maximum dosage
 P.bounds.initialTime.low = 0;
 P.bounds.initialTime.upp = 0;
 
-P.bounds.finalTime.low = 150;
-P.bounds.finalTime.upp = 150;
+P.bounds.finalTime.low = tf;
+P.bounds.finalTime.upp = tf;
 
 P.bounds.state.low = [N_Low;T_Low;I_Low;u_Low];
 P.bounds.state.upp = [N_Upp;T_Upp;I_Upp;u_Upp];
@@ -83,7 +84,7 @@ P.bounds.control.upp = vUpp;
 %                           Initial Guess                                 %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % hGuess = 2e4;   %(m) guess at the maximum height reached
-P.guess.time = [0, 150];  %(s)
+P.guess.time = [0, tf];  %(s)
 P.guess.state = [ [N0;T0;I0;u0],  [1;Tf;1;0] ];
 P.guess.control = [vUpp, vLow];
 
@@ -110,13 +111,15 @@ switch method
     
     case 'trapezoid'
         
-        P.options(1).method = 'trapezoid';
-        P.options(1).defaultAccuracy = 'low';
+%         P.options(1).method = 'trapezoid';
+%         P.options(1).defaultAccuracy = 'low';
         
         P.options(2).method = 'trapezoid';
-        P.options(2).defaultAccuracy = 'medium';
-        P.options(2).nlpOpt.MaxFunEvals = 2e4;
+        P.options(2).defaultAccuracy = 'high';
+        P.options(2).nlpOpt.MaxFunEvals = 2e5;
         P.options(2).nlpOpt.MaxIter = 1e5;
+%         P.options(2).nlpOpt.MaxIter = 1e5;
+
         
     case 'rungeKutta'
         P.options(1).method = 'rungeKutta';
@@ -156,19 +159,20 @@ end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 soln = optimTraj(P);
 
-t = linspace(soln(end).grid.time(1),soln(end).grid.time(end),250);
+t = linspace(soln(end).grid.time(1),soln(end).grid.time(end),tf);
 x = soln(end).interp.state(t);
 u = soln(end).interp.control(t);
 
-figure(120);
+figure();
 subplot(2,2,1);
 plot(t,x(1,:))
-axis([0 150 0 1.5])
+axis([0 tf 0 1.5])
 xlabel('time (s)')
 ylabel('Normal cells')
 % title('Maximal Height Trajectory')
 subplot(2,2,2);
 plot(t,x(3,:))
+axis([0 tf 0 1.8])
 xlabel('time (s)')
 ylabel('Immune cells')
 % title('Goddard Rocket')
@@ -178,10 +182,20 @@ xlabel('time (s)')
 ylabel('Tumor cells')
 subplot(2,2,4);
 plot(t,u)
+axis([0 tf 0 1.2])
 xlabel('time (s)')
 ylabel('Drug input')
 
-% figure()
+figure()
+hold on;
+plot(t,x(1,:))
+plot(t,x(2,:))
+plot(t,x(3,:))
+plot(t,x(4,:))
+plot(t,u)
+legend('Normal cells', 'Tumor cells', 'Immune cells', 'Drug concentration', 'Drug input')
+
+
 % plot(t,x(4,:))
 % xlabel('time (s)')
 % ylabel('Drug concentration')
