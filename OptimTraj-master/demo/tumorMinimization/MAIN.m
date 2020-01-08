@@ -36,7 +36,7 @@ v0 = v_max;
 
 % Final desired values
 Tf = 0;     %Trying to eradicate the tumor
-tf = 50;
+tf = 150;
 
 % mF = mEmpty; %Assume that we use all of the fuel
 
@@ -85,7 +85,7 @@ P.bounds.control.upp = vUpp;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % hGuess = 2e4;   %(m) guess at the maximum height reached
 P.guess.time = [0, tf];  %(s)
-P.guess.state = [ [N0;T0;I0;u0],  [1;Tf;1;0] ];
+P.guess.state = [ [N0;T0;I0;u0],  [1;Tf;1.5;0] ];
 P.guess.control = [vUpp, vLow];
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -116,8 +116,8 @@ switch method
         
         P.options(2).method = 'trapezoid';
         P.options(2).defaultAccuracy = 'high';
-        P.options(2).nlpOpt.MaxFunEvals = 2e5;
-        P.options(2).nlpOpt.MaxIter = 1e5;
+        P.options(2).nlpOpt.MaxFunEvals = 2e1;
+        P.options(2).nlpOpt.MaxIter = 1e1;
 %         P.options(2).nlpOpt.MaxIter = 1e5;
 
         
