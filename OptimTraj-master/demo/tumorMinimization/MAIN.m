@@ -96,8 +96,9 @@ P.func.dynamics = @(t,x,u)( tumorDynamics(x,u) );
 
 % Objective function:
 P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
-% P.func.pathObj = @(t,x,u)( x(2) );
 
+P.func.pathObj = @(t,x,u)( u );
+% P.func.pathObj = @(t,x,u)( ones(size(t)) ); % minimize time
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                  Options and Method selection                           %
@@ -141,6 +142,8 @@ switch method
         P.options.method = 'hermiteSimpson';
         P.options.defaultAccuracy = 'high';
         
+                P.options.nlpOpt.MaxFunEvals = 2e5;
+        P.options.nlpOpt.MaxIter = 1e5;
         P.options.hermiteSimpson.nSegments = 40;
 end
 
