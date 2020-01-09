@@ -35,7 +35,7 @@ u0 = v_max;     %Rocket starts full of fuel
 
 % Final desired values
 Tf = 0;     %Trying to eradicate the tumor
-tf = 100;
+tf = 150;
 
 % mF = mEmpty; %Assume that we use all of the fuel
 
@@ -96,15 +96,17 @@ P.func.dynamics = @(t,x,u)( tumorDynamics(x,u) );
 
 % Objective function:
 P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
+% P.func.pathObj = @(t,x,u)( x(2) );
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                  Options and Method selection                           %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
-method = 'trapezoid';
+% method = 'trapezoid';
 % method = 'rungeKutta';
 % method = 'chebyshev';
+method = 'hermiteSimpson';
 
 switch method
     
@@ -134,7 +136,12 @@ switch method
         P.options(2).method = 'chebyshev';
         P.options(2).defaultAccuracy = 'low';
         P.options(2).chebyshev.nColPts = 15;
+    
+    case 'hermiteSimpson'        
+        P.options.method = 'hermiteSimpson';
+        P.options.defaultAccuracy = 'high';
         
+        P.options.hermiteSimpson.nSegments = 40;
 end
 
 
@@ -193,6 +200,8 @@ plot(t,x(4,:))
 plot(t,u)
 legend('Normal cells', 'Tumor cells', 'Immune cells', 'Drug concentration', 'Drug input')
 
+sprintf('Total drug given : %g \t??mg/mL??',sum(x(4,:)))
+sprintf('Maximum concentration : %g \t??mg/mL??',max(x(4,:)))
 
 % plot(t,x(4,:))
 % xlabel('time (s)')
