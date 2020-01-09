@@ -31,12 +31,11 @@ v_max = 1;    % Maximum drug dosage
 N0 = 1;     %Rocket starts on the ground
 T0 = 0.2;   %Rocket starts stationary
 I0 = 0.15;  %Rocket starts full of fuel
-u0 = 0;     %Rocket starts full of fuel
-v0 = v_max;
+u0 = v_max;     %Rocket starts full of fuel
 
 % Final desired values
 Tf = 0;     %Trying to eradicate the tumor
-tf = 150;
+tf = 100;
 
 % mF = mEmpty; %Assume that we use all of the fuel
 
@@ -56,7 +55,7 @@ I_Upp = inf;
 
 % drug concentration
 u_Low = 0;
-u_Upp = 1; % practically == 1 
+u_Upp = inf; % practically == 1 
 
 % drug input
 vLow = v_min; % Minimum dosage
