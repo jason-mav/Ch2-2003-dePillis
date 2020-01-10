@@ -18,27 +18,35 @@ clc; clear;
 addpath ../../
 
 %%%% Assumptions of parameters
-parameters;
+% parameters;
+
 N_min = 0.75;
+
 v_min = 0;    % Minimum drug dosage
 v_max = 1;    % Maximum drug dosage
+
 w1 = 1500;
 w2 = 150;
 w3 = 1000;
+w4 = 1;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                        Problem Bounds                                   %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Initial values
-N0 = 1;     %Rocket starts on the ground
-T0 = 0.2;   %Rocket starts stationary
-I0 = 0.15;  %Rocket starts full of fuel
-u0 = v_max;     %Rocket starts full of fuel
+N0 = 1;         % No chemotherapy side effects yet
+T0 = 0.2;       % Tumor has already grown
+I0 = 0.15;      % Immune system
+u0 = v_max;     % Start the chemo
 
 % Final desired values
-Tf = 0;     %Trying to eradicate the tumor
-tf = 150;
+Nf = 1;     % Healthy after treatment
+Tf = 0;     % Trying to eradicate the tumor
+If = 1.58;  % 2nd best : 1.6
+uf = 0;
+
+tf = 150;   % Duration of chemo (days)
 
 % mF = mEmpty; %Assume that we use all of the fuel
 
@@ -87,7 +95,7 @@ P.bounds.control.upp = vUpp;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % hGuess = 2e4;   %(m) guess at the maximum height reached
 P.guess.time = [0, tf];  %(s)
-P.guess.state = [ [N0;T0;I0;u0],  [1;Tf;1.6;0] ];
+P.guess.state = [ [N0;T0;I0;u0],  [Nf;Tf;If;uf] ];
 P.guess.control = [vUpp, vLow];
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -100,7 +108,7 @@ P.func.dynamics = @(t,x,u)( tumorDynamics(x,u) );
 % Objective function:
 % P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
 
-P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x,u) +w3*max(x(2,:)) +u );
+P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x,u) +w3*max(x(2,:)) +w4*u );
 % P.func.pathObj = @(t,x,u)( ones(size(t)) ); % minimize time
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -178,39 +186,40 @@ figure();
 subplot(2,2,1);
 plot(t,x(1,:))
 axis([0 tf 0 1.5])
-xlabel('time (s)')
+xlabel('time (days)')
 ylabel('Normal cells')
 title(sprintf('minimum %g',min(x(1,:))))
 % title('Maximal Height Trajectory')
 subplot(2,2,2);
 plot(t,x(3,:))
 axis([0 tf 0 1.8])
-xlabel('time (s)')
+xlabel('time (days)')
 ylabel('Immune cells')
 % title('Goddard Rocket')
 subplot(2,2,3);
 plot(t,x(2,:))
-xlabel('time (s)')
+xlabel('time (days)')
 ylabel('Tumor cells')
 subplot(2,2,4);
 plot(t,u)
 axis([0 tf 0 1.2])
-xlabel('time (s)')
+xlabel('time (days)')
 ylabel('Drug input')
 title(sprintf('Total drug : %g ?mg/mL',sum(x(4,:))))
 
-% figure()
-% hold on;
-% plot(t,x(1,:))
-% plot(t,x(2,:))
-% plot(t,x(3,:))
+figure()
+hold on;
+plot(t,x(1,:))
+plot(t,x(2,:))
+plot(t,x(3,:))
 % plot(t,x(4,:))
-% plot(t,u)
-% legend('Normal cells', 'Tumor cells', 'Immune cells', 'Drug concentration', 'Drug input')
+plot(t,u)
+axis([0 tf 0 2])
+legend('Normal cells', 'Tumor cells', 'Immune cells', 'Drug input')
 
 sprintf('Total drug given : %g \t??mg/mL??',sum(x(4,:)))
 sprintf('Maximum concentration : %g \t??mg/mL??',max(x(4,:)))
 
 % plot(t,x(4,:))
-% xlabel('time (s)')
+% xlabel('time (days)')
 % ylabel('Drug concentration')
