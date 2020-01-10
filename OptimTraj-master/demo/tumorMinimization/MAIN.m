@@ -28,7 +28,7 @@ v_max = 1;    % Maximum drug dosage
 w1 = 1500;
 w2 = 150;
 w3 = 1000;
-w4 = 1;
+w4 = 10;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                        Problem Bounds                                   %
@@ -93,7 +93,7 @@ P.bounds.control.upp = vUpp;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Initial Guess                                 %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-% hGuess = 2e4;   %(m) guess at the maximum height reached
+% guess the progression of the tumor
 P.guess.time = [0, tf];  %(s)
 P.guess.state = [ [N0;T0;I0;u0],  [Nf;Tf;If;uf] ];
 P.guess.control = [vUpp, vLow];
