@@ -1,4 +1,4 @@
-function dz = tumorDynamics(z,v)
+function dz = tumorIntegrand(z,v)
 
 % INPUTS:
 %   z = [3,n] = [h; v; m] = state vector
@@ -36,11 +36,10 @@ s = 0.33;   %0.33 %0.05;
 ro = 0.01;  %1;
 
 %
-N_dot = r2.*N.*(1 -b2.*N) -c4.*T.*N -a3.*(1-exp(-u)).*N;
-T_dot = r1.*T.*(1 -b1.*T) -c2.*I.*T -c3.*T.*N -a2.*(1-exp(-u)).*T;
-I_dot = s +ro.*I.*T/(alpha +T) -c1.*I.*T -d1.*I -a1.*(1-exp(-u)).*I;
-u_dot = v - d2.*u;
 
-dz = [N_dot;T_dot;I_dot;u_dot];
+% T_dot = r1.*T.*(1 -b1.*T) -c2.*I.*T -c3.*T.*N -a2.*(1-exp(-u)).*T;
+T_dot_int = -u.*(T*a2 - T.*r1 + I.*T*c2 + N.*T*c3 + T.^2.*b1.*r1) - T.*a2.*exp(-u); %(int)(T_dot)
+
+dz = T_dot_int;
 
 end
