@@ -18,10 +18,13 @@ clc; clear;
 addpath ../../
 
 %%%% Assumptions of parameters
-%
+parameters;
 N_min = 0.75;
 v_min = 0;    % Minimum drug dosage
 v_max = 1;    % Maximum drug dosage
+w1 = 1500;
+w2 = 150;
+w3 = 1000;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                        Problem Bounds                                   %
@@ -84,7 +87,7 @@ P.bounds.control.upp = vUpp;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % hGuess = 2e4;   %(m) guess at the maximum height reached
 P.guess.time = [0, tf];  %(s)
-P.guess.state = [ [N0;T0;I0;u0],  [1;Tf;1.5;0] ];
+P.guess.state = [ [N0;T0;I0;u0],  [1;Tf;1.6;0] ];
 P.guess.control = [vUpp, vLow];
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -95,9 +98,9 @@ P.guess.control = [vUpp, vLow];
 P.func.dynamics = @(t,x,u)( tumorDynamics(x,u) );
 
 % Objective function:
-P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
+% P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
 
-P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x,u) +w3*max(x(2,:)) );
+P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x,u) +w3*max(x(2,:)) +u );
 % P.func.pathObj = @(t,x,u)( ones(size(t)) ); % minimize time
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -117,7 +120,7 @@ switch method
 %         P.options(1).defaultAccuracy = 'low';
         
         P.options.method = 'trapezoid';
-        P.options.defaultAccuracy = 'medium';
+        P.options.defaultAccuracy = 'high';
         P.options.nlpOpt.MaxFunEvals = 2e5;
         P.options.nlpOpt.MaxIter = 1e5;
         P.options.trapezoid.nGrid = 50;
@@ -142,9 +145,9 @@ switch method
         P.options.method = 'hermiteSimpson';
         P.options.defaultAccuracy = 'high';
         
-                P.options.nlpOpt.MaxFunEvals = 2e5;
-        P.options.nlpOpt.MaxIter = 1e5;
-        P.options.hermiteSimpson.nSegments = 40;
+        P.options.nlpOpt.MaxFunEvals = 5e4;
+        P.options.nlpOpt.MaxIter = 2e4;
+        P.options.hermiteSimpson.nSegment = 50;
 end
 
 
@@ -177,6 +180,7 @@ plot(t,x(1,:))
 axis([0 tf 0 1.5])
 xlabel('time (s)')
 ylabel('Normal cells')
+title(sprintf('minimum %g',min(x(1,:))))
 % title('Maximal Height Trajectory')
 subplot(2,2,2);
 plot(t,x(3,:))
@@ -193,15 +197,16 @@ plot(t,u)
 axis([0 tf 0 1.2])
 xlabel('time (s)')
 ylabel('Drug input')
+title(sprintf('Total drug : %g ?mg/mL',sum(x(4,:))))
 
-figure()
-hold on;
-plot(t,x(1,:))
-plot(t,x(2,:))
-plot(t,x(3,:))
-plot(t,x(4,:))
-plot(t,u)
-legend('Normal cells', 'Tumor cells', 'Immune cells', 'Drug concentration', 'Drug input')
+% figure()
+% hold on;
+% plot(t,x(1,:))
+% plot(t,x(2,:))
+% plot(t,x(3,:))
+% plot(t,x(4,:))
+% plot(t,u)
+% legend('Normal cells', 'Tumor cells', 'Immune cells', 'Drug concentration', 'Drug input')
 
 sprintf('Total drug given : %g \t??mg/mL??',sum(x(4,:)))
 sprintf('Maximum concentration : %g \t??mg/mL??',max(x(4,:)))
