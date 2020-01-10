@@ -97,7 +97,7 @@ P.func.dynamics = @(t,x,u)( tumorDynamics(x,u) );
 % Objective function:
 P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
 
-P.func.pathObj = @(t,x,u)( u );
+P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x,u) +w3*max(x(2,:)) );
 % P.func.pathObj = @(t,x,u)( ones(size(t)) ); % minimize time
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
