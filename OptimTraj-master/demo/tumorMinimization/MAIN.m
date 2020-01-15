@@ -28,7 +28,7 @@ v_max = 1;    % Maximum drug dosage
 w1 = 1500;
 w2 = 150;
 w3 = 1000;
-w4 = 10;
+w4 = 1;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                        Problem Bounds                                   %
@@ -108,7 +108,7 @@ P.func.dynamics = @(t,x,u)( tumorDynamics(x,u) );
 % Objective function:
 % P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
 
-P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x,u) +w3*max(x(2,:)) +w4*u );
+P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x) +w3*max(x(2,:)) +w4*u );
 % P.func.pathObj = @(t,x,u)( ones(size(t)) ); % minimize time
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -154,7 +154,7 @@ switch method
         P.options.defaultAccuracy = 'high';
         
         P.options.nlpOpt.MaxFunEvals = 5e4;
-        P.options.nlpOpt.MaxIter = 2e4;
+        P.options.nlpOpt.MaxIter = 2e2;
         P.options.hermiteSimpson.nSegment = 50;
 end
 

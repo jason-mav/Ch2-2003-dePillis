@@ -72,7 +72,7 @@ for s = 0:step:0.35
                     stable_T = T_dot_minus > 0 && T_dot_plus < 0;
                     stable_N = N_dot_minus > 0 && N_dot_plus < 0;
                                         
-                    if b < 0.4417  %g_b > 0.55  ???this occurs from N in figure 3???    %stable_I && stable_T && stable_N
+                    if b < 0.4103 %0.4417  %g_b > 0.55  
 %                         plot(ro,s,'rx')
 %                         hold on;
                           stable_p = stable_p +1;

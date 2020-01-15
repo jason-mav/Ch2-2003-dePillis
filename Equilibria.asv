@@ -28,17 +28,14 @@ for i=1:size(sol_b,1)
 end
 
 % dead equilibriua
-syms a;
 % (I,T,N) =  (f(a),a,g(a))
 f_a = s.*(alpha+a)./(c1*a*(alpha+a) + d1*(alpha+a) - ro*a);    
 g_a = 1 - (c4/r2)*a;
 
 % a is a nonnegative solution of: 
 % a + (c2/r1*b1)*f(a) + (c3/r1*b1)*g(a) - 1/b1 = 0
-sol = solve(a + (c2/r1*b1)*f_a - 1/b1 == 0, a);    
+sol = solve(a + (c2/r1*b1)*f_a + (c3/r1*b1)*g_a - 1/b1 == 0, a);    
 sol_a = vpa(sol);  % has 3 solutions
-
-fprintf('Dead Equilibrium at (N,T,I)=(%g,%g,%g) - Type 1\n',0,0,s/d1)
 
 for i=1:size(sol_a,1)        
     if sol_a(i)>0 && imag(sol_a(i))==0
@@ -46,9 +43,11 @@ for i=1:size(sol_a,1)
         a = real(sol_a(i));
         f_a = s.*(alpha+a)./(c1*a*(alpha+a) + d1*(alpha+a) - ro*a); % f(a)
         g_a = 1 - (c4/r2)*a; % g(a)
-        fprintf('Dead Equilibrium at (N,T,I)=(%g,%g,%g) - Type 2\n',g_a,a,f_a)
-        
+        fprintf('Coexisting Equilibrium at (N,T,I)=(%g,%g,%g)',g_a,a,f_a)
+        if b > 0.4103
+            fprintf(' - stable.\n')
+        else
+            fprintf(' - unstable.\n')
+        end
     end
 end
-
-

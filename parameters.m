@@ -51,13 +51,12 @@ ro = 0.01;  %1;
 % c1 = 0.00311;   %1/day/cells - ?
 % d1 = 0.3743;    %1/day - ?
 % 
-% Eo = 3.2*10^5;  %cells
 % n = 1.101*10^-7;    %1/day/cells
 
 %% DePillis 2001
 % c2 is larger than the rest
 % 0<c3<c2
 % Io = s/d1
-% To = 10^-5 normalized == 10^6 tumor cells
+% To = 10^-5 (normalized *10^11) == 10^6 tumor cells
 % No = 1
 

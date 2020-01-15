@@ -1,4 +1,4 @@
-function dz = tumorIntegrand(z,v)
+function dz = tumorIntegrand(z)
 
 % INPUTS:
 %   z = [3,n] = [h; v; m] = state vector
