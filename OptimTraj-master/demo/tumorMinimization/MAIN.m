@@ -17,8 +17,7 @@
 clc; clear;
 addpath ../../
 
-%%%% Assumptions of parameters
-% parameters;
+%%%% Parameters & Conditions
 
 N_min = 0.75;
 
@@ -36,15 +35,15 @@ w4 = 1;
 
 % Initial values
 N0 = 1;         % No chemotherapy side effects yet
-T0 = 0.2;       % Tumor has already grown
-I0 = 0.15;      % Immune system
+T0 = 0.25;      % Tumor has already grown
+I0 = 0.1001;      % Immune system
 u0 = v_max;     % Start the chemo
 
 % Final desired values
 Nf = 1;     % Healthy after treatment
 Tf = 0;     % Trying to eradicate the tumor
-If = 1.58;  % 2nd best : 1.6
-uf = 0;
+If = 1.65;  % Immune population of a healthy organism
+uf = 0;     % End of treatment
 
 tf = 150;   % Duration of chemo (days)
 
@@ -69,8 +68,8 @@ u_Low = 0;
 u_Upp = inf; % practically == 1 
 
 % drug input
-vLow = v_min; % Minimum dosage
-vUpp = v_max; % Maximum dosage
+v_Low = v_min; % Minimum dosage
+v_Upp = v_max; % Maximum dosage
 
 P.bounds.initialTime.low = 0;
 P.bounds.initialTime.upp = 0;
@@ -87,8 +86,8 @@ P.bounds.initialState.upp = [N0;T0;I0;u0];
 P.bounds.finalState.low = [N_Low;Tf;I_Low;u_Low];
 P.bounds.finalState.upp = [N_Upp;Tf;I_Upp;u_Upp];
 
-P.bounds.control.low = vLow;
-P.bounds.control.upp = vUpp;
+P.bounds.control.low = v_Low;
+P.bounds.control.upp = v_Upp;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Initial Guess                                 %
@@ -96,7 +95,7 @@ P.bounds.control.upp = vUpp;
 % guess the progression of the tumor
 P.guess.time = [0, tf];  %(s)
 P.guess.state = [ [N0;T0;I0;u0],  [Nf;Tf;If;uf] ];
-P.guess.control = [vUpp, vLow];
+P.guess.control = [v_Upp, v_Low];
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                 Objective and Dynamic functions                         %
@@ -134,14 +133,12 @@ switch method
         P.options.trapezoid.nGrid = 50;
         
     case 'rungeKutta'
-        P.options(1).method = 'rungeKutta';
-        P.options(1).defaultAccuracy = 'low';
-        
-        P.options(2).method = 'rungeKutta';
-        P.options(2).defaultAccuracy = 'medium';
-        
-    case 'chebyshev'
-        
+        P.options.method = 'rungeKutta';
+        P.options.defaultAccuracy = 'high';
+        P.options.nlpOpt.MaxFunEvals = 5e4;
+        P.options.nlpOpt.MaxIter = 2e2;
+
+    case 'chebyshev'    
         P.options(1).method = 'chebyshev';
         P.options(1).defaultAccuracy = 'low';
         
@@ -151,11 +148,11 @@ switch method
     
     case 'hermiteSimpson'        
         P.options.method = 'hermiteSimpson';
-        P.options.defaultAccuracy = 'high';
+        P.options.defaultAccuracy = 'high';        
+        P.options.hermiteSimpson.nSegment = 50;
         
         P.options.nlpOpt.MaxFunEvals = 5e4;
         P.options.nlpOpt.MaxIter = 2e2;
-        P.options.hermiteSimpson.nSegment = 50;
 end
 
 
@@ -186,26 +183,27 @@ figure();
 subplot(2,2,1);
 plot(t,x(1,:))
 axis([0 tf 0 1.5])
-xlabel('time (days)')
+xlabel('Days')
 ylabel('Normal cells')
-title(sprintf('minimum %g',min(x(1,:))))
+title(sprintf('Min=%g', min(x(1,:))))
 % title('Maximal Height Trajectory')
 subplot(2,2,2);
 plot(t,x(3,:))
 axis([0 tf 0 1.8])
-xlabel('time (days)')
+xlabel('Days')
 ylabel('Immune cells')
-% title('Goddard Rocket')
+title(sprintf('Io=%g If=%g', I0, If))
 subplot(2,2,3);
 plot(t,x(2,:))
-xlabel('time (days)')
+xlabel('Days')
 ylabel('Tumor cells')
+title(sprintf('Max=%g',  max(x(2,:))))
 subplot(2,2,4);
 plot(t,u)
 axis([0 tf 0 1.2])
-xlabel('time (days)')
+xlabel('Days')
 ylabel('Drug input')
-title(sprintf('Total drug : %g ?mg/mL',sum(x(4,:))))
+title(sprintf('Total drug : %g ?mg/mL, w4=%g',sum(x(4,:)), w4))
 
 figure()
 hold on;
