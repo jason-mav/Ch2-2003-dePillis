@@ -34,10 +34,11 @@ w4 = 1;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Initial values
-N0 = 1;                 % No chemotherapy side effects yet
-T0 = 0.25;              % Tumor has already grown
-I0 = 0.15; % or 0.1001   % Immune system
-u0 = v_max;             % Start the chemo
+N0 = 1;       % No chemotherapy side effects yet
+T0 = 0.25;    % Tumor has already grown
+% I0 = 0.15;    % Immune system High
+I0 = 0.1001;  % Immune system Low
+u0 = v_max;   % Start the chemo
 
 % Final desired values
 Nf = 1;     % Healthy after treatment
@@ -121,11 +122,7 @@ method = 'hermiteSimpson';
 
 switch method
     
-    case 'trapezoid'
-        
-%         P.options(1).method = 'trapezoid';
-%         P.options(1).defaultAccuracy = 'low';
-        
+    case 'trapezoid'        
         P.options.method = 'trapezoid';
         P.options.defaultAccuracy = 'high';
         P.options.nlpOpt.MaxFunEvals = 2e5;
@@ -138,19 +135,15 @@ switch method
         P.options.nlpOpt.MaxFunEvals = 5e4;
         P.options.nlpOpt.MaxIter = 2e2;
 
-    case 'chebyshev'    
-        P.options(1).method = 'chebyshev';
-        P.options(1).defaultAccuracy = 'low';
-        
-        P.options(2).method = 'chebyshev';
-        P.options(2).defaultAccuracy = 'low';
-        P.options(2).chebyshev.nColPts = 15;
+    case 'chebyshev'            
+        P.options.method = 'chebyshev';
+        P.options.defaultAccuracy = 'low';
+        P.options.chebyshev.nColPts = 15;
     
     case 'hermiteSimpson'        
         P.options.method = 'hermiteSimpson';
         P.options.defaultAccuracy = 'high';        
-        P.options.hermiteSimpson.nSegment = 50;
-        
+        P.options.hermiteSimpson.nSegment = 50;        
         P.options.nlpOpt.MaxFunEvals = 5e4;
         P.options.nlpOpt.MaxIter = 2e2;
 end
