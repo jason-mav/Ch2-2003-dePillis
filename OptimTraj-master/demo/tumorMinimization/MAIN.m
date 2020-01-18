@@ -34,10 +34,10 @@ w4 = 1;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Initial values
-N0 = 1;         % No chemotherapy side effects yet
-T0 = 0.25;      % Tumor has already grown
-I0 = 0.1001;      % Immune system
-u0 = v_max;     % Start the chemo
+N0 = 1;                 % No chemotherapy side effects yet
+T0 = 0.25;              % Tumor has already grown
+I0 = 0.15; % or 0.1001   % Immune system
+u0 = v_max;             % Start the chemo
 
 % Final desired values
 Nf = 1;     % Healthy after treatment
@@ -199,7 +199,7 @@ xlabel('Days')
 ylabel('Tumor cells')
 title(sprintf('Max=%g',  max(x(2,:))))
 subplot(2,2,4);
-plot(t,u)
+stairs(t,u)
 axis([0 tf 0 1.2])
 xlabel('Days')
 ylabel('Drug input')
@@ -211,13 +211,19 @@ plot(t,x(1,:))
 plot(t,x(2,:))
 plot(t,x(3,:))
 % plot(t,x(4,:))
-plot(t,u)
+stairs(t,u)
 axis([0 tf 0 2])
-legend('Normal cells', 'Tumor cells', 'Immune cells', 'Drug input')
+legend('N', 'T', 'I', 'v')
 
 sprintf('Total drug given : %g \t??mg/mL??',sum(x(4,:)))
 sprintf('Maximum concentration : %g \t??mg/mL??',max(x(4,:)))
 
-% plot(t,x(4,:))
-% xlabel('time (days)')
-% ylabel('Drug concentration')
+normal_cells = x(1,:);
+tumor_cells = x(2,:);
+immune_cells = x(3,:);
+drug_conc = x(4,:);
+drug_input = u;
+
+
+
+
