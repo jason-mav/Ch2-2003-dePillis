@@ -36,8 +36,10 @@ w4 = 1;
 % Initial values
 N0 = 1;       % No chemotherapy side effects yet
 T0 = 0.25;    % Tumor has already grown
-% I0 = 0.15;    % Immune system High
+
 I0 = 0.1001;  % Immune system Low
+% I0 = 0.15;    % Immune system High
+
 u0 = v_max;   % Start the chemo
 
 % Final desired values
@@ -172,50 +174,80 @@ t = linspace(soln(end).grid.time(1),soln(end).grid.time(end),tf);
 x = soln(end).interp.state(t);
 u = soln(end).interp.control(t);
 
-figure();
-subplot(2,2,1);
-plot(t,x(1,:))
-axis([0 tf 0 1.5])
-xlabel('Days')
-ylabel('Normal cells')
-title(sprintf('Min=%g', min(x(1,:))))
-% title('Maximal Height Trajectory')
-subplot(2,2,2);
-plot(t,x(3,:))
-axis([0 tf 0 1.8])
-xlabel('Days')
-ylabel('Immune cells')
-title(sprintf('Io=%g If=%g', I0, If))
-subplot(2,2,3);
-plot(t,x(2,:))
-xlabel('Days')
-ylabel('Tumor cells')
-title(sprintf('Max=%g',  max(x(2,:))))
-subplot(2,2,4);
-stairs(t,u)
-axis([0 tf 0 1.2])
-xlabel('Days')
-ylabel('Drug input')
-title(sprintf('Total drug : %g ?mg/mL, w4=%g',sum(x(4,:)), w4))
+% o.c. might have some negative values
+for i=1:length(u)
+    if (u(i))<0
+        u(i) = 0;
+    end
+end
+drug_thresh = sum(u);
 
-figure()
+fig1 = figure();
+set(gcf,'position',[0 0 700 1000])
+
+subplot(4,1,1);
+plot(t,x(1,:), 'LineWidth',1)
+axis([0 tf 0 1.5])
+set(gca,'FontSize',11)
+xlabel('Days', 'fontsize',12)
+ylabel('Normal cells', 'fontsize',12)
+title(sprintf('Minimum normal cells population = %g', min(x(1,:))), 'fontsize',12)
+
+subplot(4,1,2);
+plot(t,x(3,:), 'LineWidth',1)
+axis([0 tf 0 1.8])
+set(gca,'FontSize',11)
+xlabel('Days', 'fontsize',12)
+ylabel('Immune cells', 'fontsize',12)
+title(sprintf('Io = %g', I0), 'fontsize',12)
+
+subplot(4,1,3);
+plot(t,x(2,:), 'LineWidth',1)
+set(gca,'FontSize',11)
+xlabel('Days', 'fontsize',12)
+ylabel('Tumor cells', 'fontsize',12)
+title(sprintf('Maximum tumor population = %g',  max(x(2,:))), 'fontsize',12)
+
+subplot(4,1,4);
+stairs(t,u, 'LineWidth',1)
+axis([0 tf 0 1.2])
+set(gca, 'FontSize',11)
+xlabel('Days', 'fontsize',12)
+ylabel('Drug input', 'fontsize',12)
+title(sprintf('Total drug : %g ?mg/mL',sum(u)), 'fontsize',12)
+
+I_0 = int8(I0*100);
+saveas(fig1, sprintf('figures\\I_0=0%d-split', I_0),'fig');
+print(fig1,'-dpng',sprintf('figures\\I_0=0%d-split.png', I_0));
+
+fig2 = figure();
 hold on;
-plot(t,x(1,:))
-plot(t,x(2,:))
-plot(t,x(3,:))
-% plot(t,x(4,:))
-stairs(t,u)
+plot(t,x(1,:),'LineWidth',1)
+plot(t,x(2,:), 'LineWidth',1)
+plot(t,x(3,:), 'LineWidth',1)
+stairs(t,u, 'LineWidth',1)
+% plot(t,x(4,:), 'LineWidth',1)
 axis([0 tf 0 2])
+set(gca,'FontSize',11)
+title('Cell Populations and Drug input', 'fontsize',12)
+xlabel('Days', 'fontsize',12)
+ylabel('Cells', 'fontsize',12)
 legend('N', 'T', 'I', 'v')
 
-sprintf('Total drug given : %g \t??mg/mL??',sum(x(4,:)))
-sprintf('Maximum concentration : %g \t??mg/mL??',max(x(4,:)))
+sprintf('Total drug given : %g \t??mg/mL??',sum(u))
+sprintf('Maximum concentration in the body : %g \t??mg/mL??',max(x(4,:)))
 
-normal_cells = x(1,:);
-tumor_cells = x(2,:);
-immune_cells = x(3,:);
-drug_conc = x(4,:);
-drug_input = u;
+saveas(fig2, sprintf('figures\\I_0=0%d', I_0),'fig');
+print(fig2,'-dpng',sprintf('figures\\I_0=0%d.png', I_0));
+
+simTime = tf;
+I_0 = double(I0);
+
+% normal_cells = x(1,:);
+% tumor_cells = x(2,:);
+% immune_cells = x(3,:);
+% drug_conc = x(4,:);
+% drug_input = u;
 
 
 

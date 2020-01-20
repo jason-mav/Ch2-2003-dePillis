@@ -1,12 +1,12 @@
 close all;
 clear i j period active_days;
 
-simTime = 150;
+simTime = tf;
 sim('model_depillis',simTime);
 
 I_0 = (Io_out.data(1)*100);
 
-path_nodrug = sprintf('figures\\Io=0%d_nodrug', I_0);
+path_nodrug = sprintf('figures\\I(0)=0%d_nodrug', I_0);
 path_pulsed_cells = sprintf('figures\\I(0)=0%d_pulsed', I_0);
 path_pulsed_drug = sprintf('figures\\I(0)=0%d_pulsed-d', I_0);
 
