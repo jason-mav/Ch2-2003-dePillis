@@ -39,8 +39,8 @@ w4 = 40;
 N0 = 1;       % No chemotherapy side effects yet
 T0 = 0.25;    % Tumor has already grown
 
-I0 = 0.1001;  % Immune system Low
-% I0 = 0.15;    % Immune system High
+% I0 = 0.1001;  % Immune system Low
+I0 = 0.15;    % Immune system High
 
 u0 = 0.01;   % Start the chemo
 
@@ -224,7 +224,7 @@ plot(t,x(1,:), 'LineWidth',1)
 axis([0 tf 0 1.5])
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Normal cells 10^{11}', 'fontsize',12)
+ylabel('Normal cells (10^{11})', 'fontsize',12)
 title(sprintf('Minimum normal cells population = %g', min(x(1,:))), 'fontsize',12)
 
 subplot(4,1,2);
@@ -232,23 +232,31 @@ plot(t,x(3,:), 'LineWidth',1)
 axis([0 tf 0 1.8])
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Immune cells 10^{11}', 'fontsize',12)
+ylabel('Immune cells (10^{11})', 'fontsize',12)
 title(sprintf('Initial immune cells population I_0 = %g', I0), 'fontsize',12)
 
 subplot(4,1,3);
 plot(t,x(2,:), 'LineWidth',1)
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Tumor cells 10^{11}', 'fontsize',12)
-title(sprintf('Maximum tumor population = %g',  max(x(2,:))), 'fontsize',12)
+ylabel('Tumor cells (10^{11})', 'fontsize',12)
+title(sprintf('Maximum tumor cells population = %g',  max(x(2,:))), 'fontsize',12)
 
 subplot(4,1,4);
-stairs(t,v, 'LineWidth',1)
+plot(t,x(4,:), 'LineWidth',1)
 axis([0 tf 0 1.2])
 set(gca, 'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Drug input mg/{L}', 'fontsize',12)
-title(sprintf('Total drug : %g mg/L',sum(v)), 'fontsize',12)
+ylabel('Drug concentration (mg/L)', 'fontsize',12)
+title(sprintf('Maximum drug concentration: %g',max(x(4,:))), 'fontsize',12)
+
+% hold on;
+% stairs(t,v, 'LineWidth',1)
+% axis([0 tf 0 1.2])
+% set(gca, 'FontSize',11)
+% xlabel('Days', 'fontsize',12)
+% ylabel('Drug input (mg/m^2)', 'fontsize',12)
+% title(sprintf('Total drug : %g mg/L',sum(v)), 'fontsize',12)
 
 % Figure /w hold
 fig2 = figure();
@@ -262,7 +270,7 @@ axis([0 tf 0 2])
 set(gca,'FontSize',11)
 title('Cell Populations and Drug input', 'fontsize',12)
 xlabel('Days', 'fontsize',12)
-ylabel('Cells (10^{11}), Drug (mg/L)', 'fontsize',12)
+ylabel('Cells (10^{11}), Drug (mg/m^2)', 'fontsize',12)
 legend('N', 'T', 'I', 'v')
 
 % Save the results
@@ -275,9 +283,12 @@ if save == 1
     print(fig2,'-dpng',sprintf('figures\\I_0=0%d.png', I_0));
 end
 
-sprintf('Total drug given : %g mg',sum(v))
-sprintf('Maximum concentration in the body : %g mg/L',max(x(4,:)))
-
+fprintf('[DirCol] Total drug given : %g mg/m^2 \n',sum(v)) 
+% I0=0.10 : 14.5321 mg/m^2 
+% I0=0.15 : 11.1281 mg/m^2 
+fprintf('[DirCol] Maximum concentration in the body : %g mg/L \n',max(x(4,:)))
+% I0=0.10 : 0.9330 mg/L 
+% I0=0.15 : 0.912042 mg/L 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                              Print-Bang Bang!                           %
@@ -292,7 +303,7 @@ plot(Cells_out.time,Cells_out.data(:,1), 'LineWidth',1)
 axis([0 tf 0 1.5])
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Normal cells 10^{11}', 'fontsize',12)
+ylabel('Normal cells (10^{11})', 'fontsize',12)
 title(sprintf('Minimum normal cells population = %g', min(Cells_out.data(:,1))), 'fontsize',12)
 
 subplot(4,1,2);
@@ -300,27 +311,30 @@ plot(Cells_out.time,Cells_out.data(:,3), 'LineWidth',1)
 axis([0 tf 0 1.8])
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Immune cells 10^{11}', 'fontsize',12)
+ylabel('Immune cells (10^{11})', 'fontsize',12)
 title(sprintf('Initial immune cells population I_0 = %g', I0), 'fontsize',12)
 
 subplot(4,1,3);
 plot(Cells_out.time,Cells_out.data(:,2), 'LineWidth',1)
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Tumor cells 10^{11}', 'fontsize',12)
+ylabel('Tumor cells (10^{11})', 'fontsize',12)
 title(sprintf('Maximum tumor population = %g',  max(Cells_out.data(:,2))), 'fontsize',12)
 
 subplot(4,1,4);
-t2 = linspace(1,tf,tf);
-stairs(t2, v_bb, 'LineWidth',1)
+% stairs(t2, v_bb, 'LineWidth',1)
+plot(Cells_out.time,Cells_out.data(:,4), 'LineWidth',1)
 axis([0 tf 0 1.2])
 set(gca, 'FontSize',11)
 xlabel('Days', 'fontsize',12)
-ylabel('Drug input mg/L', 'fontsize',12)
-title(sprintf('Total drug : %g mg/L',sum(v_bb)), 'fontsize',12)
+ylabel('Drug concentration (mg/L)', 'fontsize',12)
+title(sprintf('Maximum drug concentration: %g',max(Cells_out.data(:,4))), 'fontsize',12)
+
+% title(sprintf('Total drug : %g mg/L',sum(v_bb)), 'fontsize',12)
 
 %%%%%%%% Figure /w hold
 fig2_bangbang = figure();
+t2 = linspace(1,tf,tf);
 hold on;
 plot(Cells_out.time,Cells_out.data(:,1), 'LineWidth',1)
 plot(Cells_out.time,Cells_out.data(:,2), 'LineWidth',1)
@@ -331,7 +345,7 @@ axis([0 tf 0 2])
 set(gca,'FontSize',11)
 title('Bang-Bang approach - Cell Populations and Drug input', 'fontsize',12)
 xlabel('Days', 'fontsize',12)
-ylabel('Cells (10^{11}), Drug (mg/L)', 'fontsize',12)
+ylabel('Cells (10^{11}), Drug (mg/m^2)', 'fontsize',12)
 legend('N', 'T', 'I', 'v')
 
 % Save the results
@@ -346,10 +360,12 @@ if (save == 1)
     print(fig2_bangbang,'-dpng',sprintf('figures\\I_0=0%d_bangbang.png', I_0));
 end
 
-sprintf('Total drug given : %g mg',sum(v))
-sprintf('Maximum concentration in the body : %g mg/L',max(x(4,:)))
-
-
+fprintf('[Bang Bang] Total drug given : %g mg/m^2 \n',sum(v_bb))
+% I0=0.10 : 18 mg/m^2
+% I0=0.15 : 17 mg/m^2 
+fprintf('[Bang Bang] Maximum concentration in the body : %g mg/L \n',max(Cells_out.data(:,4)))
+% I0=0.10 : 0.999088 mg/L
+% I0=0.15 : 0.954701 mg/L 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                              Print-Pulsed!                              %
@@ -365,7 +381,7 @@ axis([0 tf 0 1.2])
 set(gca,'FontSize',11)
 title('Traditional Pulsed approach - Cell Populations and Drug input', 'fontsize',12)
 xlabel('Days', 'fontsize',12)
-ylabel('Cells (10^{11}), Drug (mg/L)', 'fontsize',12)
+ylabel('Cells (10^{11}), Drug (mg/m^2)', 'fontsize',12)
 legend('N', 'T', 'I', 'v')
 
 % Save the results
