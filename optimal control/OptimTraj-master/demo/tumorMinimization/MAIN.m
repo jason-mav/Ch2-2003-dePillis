@@ -276,7 +276,7 @@ if save == 1
 end
 
 sprintf('Total drug given : %g mg',sum(v))
-sprintf('Maximum concentration in the body : %g mg/mL',max(x(4,:)))
+sprintf('Maximum concentration in the body : %g mg/L',max(x(4,:)))
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -347,7 +347,7 @@ if (save == 1)
 end
 
 sprintf('Total drug given : %g mg',sum(v))
-sprintf('Maximum concentration in the body : %g mg/mL',max(x(4,:)))
+sprintf('Maximum concentration in the body : %g mg/L',max(x(4,:)))
 
 
 
