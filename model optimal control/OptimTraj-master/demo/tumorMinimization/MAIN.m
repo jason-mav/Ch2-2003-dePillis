@@ -18,7 +18,7 @@ clc; clear;
 addpath ../../
 close all;
 
-save = 1; % Save the printed figures
+save = 0; % Save the printed figures
 
 
 %%%% Parameters & Conditions
