@@ -41,8 +41,8 @@ w4 = 40;
 N0 = 1;       % No chemotherapy side effects yet
 T0 = 0.25;    % Tumor has already grown
 
-% I0 = 0.1001;  % Immune system Low
-I0 = 0.15;    % Immune system High
+I0 = 0.1001;  % Immune system Low
+% I0 = 0.15;    % Immune system High
 
 u0 = 0.01;   % Start the chemo
 
@@ -163,12 +163,14 @@ for i=1:length(v)
 end
 
 max_dose = max(v);
-dose_thresh = 0.13*max_dose;
-%%2.1*median(v); I0=0.10 
-%%795*median(v); %I0 = 0.15
-v_bb = v;
+if I0 == 0.15
+    dose_thresh = 0.19*max_dose;
+else % 0.10
+    dose_thresh = 0.13*max_dose;
+end
 
 % Convert to bang bang
+v_bb = v;
 for i=1:length(v)
     if (v(i)) < dose_thresh
         v_bb(i) = 0;
@@ -176,8 +178,8 @@ for i=1:length(v)
         v_bb(i) = v_max; %max_dose;
     end
 end
-sprintf('Total drug : %g mg',sum(v_bb))
 
+% Convert to timeseries
 v_bb_ts = timeseries(v_bb);
 I0_ts = timeseries(I0);
 total_drug_ts = timeseries(sum(v_bb));
@@ -185,6 +187,23 @@ total_drug_ts = timeseries(sum(v_bb));
 simTime = tf;
 sim('model\\model_depillis_bangbang',simTime);
 
+
+fprintf('[DirCol] Total drug given : %g mg/m^2 \n',sum(v)) 
+% I0=0.10 : 14.5321 mg/m^2 
+% I0=0.15 : 11.1281 mg/m^2 
+fprintf('[DirCol] Maximum concentration in the body : %g mg/L \n',max(x(4,:)))
+% I0=0.10 : 0.9330 mg/L 
+% I0=0.15 : 0.912042 mg/L 
+
+fprintf('[Bang Bang] Dose threshold: %g mg/m^2\n', dose_thresh)
+% I0=0.10 : 0.141426 mg/m^2
+% I0=0.15 : 0.210967 mg/m^2 
+fprintf('[Bang Bang] Total drug given : %g mg/m^2 \n',sum(v_bb))
+% I0=0.10 : 18 mg/m^2
+% I0=0.15 : 15 mg/m^2 
+fprintf('[Bang Bang] Maximum concentration in the body : %g mg/L \n',max(Cells_out.data(:,4)))
+% I0=0.10 : 0.999088 mg/L
+% I0=0.15 : 0.95022 mg/L
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -258,12 +277,6 @@ if save == 1
     print(fig2,'-dpng',sprintf('figures\\I_0=0%d.png', I_0));
 end
 
-fprintf('[DirCol] Total drug given : %g mg/m^2 \n',sum(v)) 
-% I0=0.10 : 14.5321 mg/m^2 
-% I0=0.15 : 11.1281 mg/m^2 
-fprintf('[DirCol] Maximum concentration in the body : %g mg/L \n',max(x(4,:)))
-% I0=0.10 : 0.9330 mg/L 
-% I0=0.15 : 0.912042 mg/L 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                              Print-Bang Bang!                           %
@@ -335,12 +348,6 @@ if (save == 1)
     print(fig2_bangbang,'-dpng',sprintf('figures\\I_0=0%d_bangbang.png', I_0));
 end
 
-fprintf('[Bang Bang] Total drug given : %g mg/m^2 \n',sum(v_bb))
-% I0=0.10 : 18 mg/m^2
-% I0=0.15 : 17 mg/m^2 
-fprintf('[Bang Bang] Maximum concentration in the body : %g mg/L \n',max(Cells_out.data(:,4)))
-% I0=0.10 : 0.999088 mg/L
-% I0=0.15 : 0.954701 mg/L 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                              Print-Pulsed!                              %
