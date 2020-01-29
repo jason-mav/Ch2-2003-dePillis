@@ -1,18 +1,8 @@
-% MAIN.m -- Goddard Rocket
-%
-% This script runs a trajectory optimization to find the optimal thrust
-% trajectory for the rocket to reach the maximum altitude. Physical
-% parameters are roughly based on the SpaceX Falcon 9 rocket.
-%
-% Dynamics include variable mass, inverse-square gravity, speed-dependent
-% drag coefficient, height dependent air density.
-%
-% NOTES:
-%   This problem sort of converges, but not very well. I think that there
-%   is a singular arc in it that is not being handled correctly. It is
-%   still interesting to see as an example of ways in which problems might
-%   misbehave.
-%
+% MAIN.m
+% 
+% Create a model for the cancerous area in the patient's body and simulate
+% chemotherapy treatment based on DIRCOL, bang bang and traditionally pulsed regimens.
+% 
 
 clc; clear;
 addpath ../../
@@ -41,7 +31,7 @@ w4 = 40;
 N0 = 1;       % No chemotherapy side effects yet
 T0 = 0.25;    % Tumor has already grown
 
-I0 = 0.1001;  % Immune system Low
+I0 = 0.10;  % Immune system Low
 % I0 = 0.15;    % Immune system High
 
 u0 = 0.01;   % Start the chemo
@@ -136,9 +126,9 @@ switch method
     case 'hermiteSimpson'        
         P.options.method = 'hermiteSimpson';
         P.options.defaultAccuracy = 'high';        
-        P.options.hermiteSimpson.nSegment = 50;        
-        P.options.nlpOpt.MaxFunEvals = 5e4;
-        P.options.nlpOpt.MaxIter = 2e2;
+        P.options.hermiteSimpson.nSegment = 149;        
+%         P.options.nlpOpt.MaxFunEvals = 5e4;
+        P.options.nlpOpt.MaxIter = 50; %2e2;
 end
 
 
@@ -164,10 +154,11 @@ end
 
 max_dose = max(v);
 if I0 == 0.15
-    dose_thresh = 0.19*max_dose;
+    dose_thresh = 0.12*max_dose; 
 else % 0.10
-    dose_thresh = 0.13*max_dose;
+    dose_thresh = 0.1455*max_dose; 
 end
+close all;
 
 % Convert to bang bang
 v_bb = v;
@@ -189,26 +180,30 @@ sim('model\\model_depillis_bangbang',simTime);
 
 
 fprintf('[DirCol] Total drug given : %g mg/m^2 \n',sum(v)) 
-% I0=0.10 : 14.5321 mg/m^2 
-% I0=0.15 : 11.1281 mg/m^2 
 fprintf('[DirCol] Maximum concentration in the body : %g mg/L \n',max(x(4,:)))
-% I0=0.10 : 0.9330 mg/L 
-% I0=0.15 : 0.912042 mg/L 
 
 fprintf('[Bang Bang] Dose threshold: %g mg/m^2\n', dose_thresh)
-% I0=0.10 : 0.141426 mg/m^2
-% I0=0.15 : 0.210967 mg/m^2 
 fprintf('[Bang Bang] Total drug given : %g mg/m^2 \n',sum(v_bb))
-% I0=0.10 : 18 mg/m^2
-% I0=0.15 : 15 mg/m^2 
 fprintf('[Bang Bang] Maximum concentration in the body : %g mg/L \n',max(Cells_out.data(:,4)))
-% I0=0.10 : 0.999088 mg/L
-% I0=0.15 : 0.95022 mg/L
 
+% I0=0.10 : 
+% [DirCol] Total drug given : 15.8379 mg/m^2 
+% [DirCol] Maximum concentration in the body : 0.722654 mg/L 
+% [Bang Bang] Dose threshold: 0.145499 mg/m^2
+% [Bang Bang] Total drug given : 16 mg/m^2 
+% [Bang Bang] Maximum concentration in the body : 0.98603 mg/L 
+
+% I0=0.15 : 
+% [DirCol] Total drug given : 14.9764 mg/m^2 
+% [DirCol] Maximum concentration in the body : 0.660461 mg/L 
+% [Bang Bang] Dose threshold: 0.119961 mg/m^2
+% [Bang Bang] Total drug given : 15 mg/m^2 
+% [Bang Bang] Maximum concentration in the body : 0.997847 mg/L 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                              Print-DirCol!                              %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+I_0 = int8(I0*100);
 
 fig1 = figure();
 set(gcf,'position',[0 0 700 1000])
@@ -227,7 +222,7 @@ axis([0 tf 0 1.8])
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
 ylabel('Immune cells (10^{11})', 'fontsize',12)
-title(sprintf('Initial immune cells population I_0 = %g', I0), 'fontsize',12)
+title(sprintf('Initial immune cells population I_0 = 0.%d', I_0), 'fontsize',12)
 
 subplot(4,1,3);
 plot(t,x(2,:), 'LineWidth',1)
@@ -268,8 +263,7 @@ ylabel('Cells (10^{11}), Drug (mg/m^2)', 'fontsize',12)
 legend('N', 'T', 'I', 'v')
 
 % Save the results
-if save == 1
-    I_0 = int8(I0*100);
+if save == 1    
     saveas(fig1, sprintf('figures\\I_0=0%d-split', I_0),'fig');
     print(fig1,'-dpng',sprintf('figures\\I_0=0%d-split.png', I_0));
 
@@ -300,7 +294,7 @@ axis([0 tf 0 1.8])
 set(gca,'FontSize',11)
 xlabel('Days', 'fontsize',12)
 ylabel('Immune cells (10^{11})', 'fontsize',12)
-title(sprintf('Initial immune cells population I_0 = %g', I0), 'fontsize',12)
+title(sprintf('Initial immune cells population I_0 = 0.%d', I_0), 'fontsize',12)
 
 subplot(4,1,3);
 plot(Cells_out.time,Cells_out.data(:,2), 'LineWidth',1)
@@ -339,7 +333,6 @@ legend('N', 'T', 'I', 'v')
 % Save the results
 if (save == 1)    
     % Print - All populations & Drug input
-    I_0 = int8(I0*100);
     saveas(fig1_bangbang, sprintf('figures\\I_0=0%d-split_bangbang', I_0),'fig');
     print(fig1_bangbang,'-dpng',sprintf('figures\\I_0=0%d-split_bangbang.png', I_0));
     
@@ -352,54 +345,53 @@ end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                              Print-Pulsed!                              %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-fig_pulsed = figure();
-hold on;
-plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,1), 'LineWidth',1)
-plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,2), 'LineWidth',1)
-plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,3), 'LineWidth',1)
-stairs(pulsed_Cells_out.time, pulsed_Drug_out.data, 'LineWidth',1)
-% plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,4), 'LineWidth',1)
-axis([0 tf 0 1.2])
-set(gca,'FontSize',11)
-title('Traditional Pulsed approach - Cell Populations and Drug input', 'fontsize',12)
-xlabel('Days', 'fontsize',12)
-ylabel('Cells (10^{11}), Drug (mg/m^2)', 'fontsize',12)
-legend('N', 'T', 'I', 'v')
-
-% Save the results
-if (save == 1)    
-    % Print - All populations & Drug input
-    I_0 = int8(I0*100);
-    saveas(fig_pulsed, sprintf('figures\\I_0=0%d_pulsed', I_0),'fig');
-    print(fig_pulsed,'-dpng',sprintf('figures\\I_0=0%d_pulsed.png', I_0));    
-end
+% fig_pulsed = figure();
+% hold on;
+% plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,1), 'LineWidth',1)
+% plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,2), 'LineWidth',1)
+% plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,3), 'LineWidth',1)
+% stairs(pulsed_Cells_out.time, pulsed_Drug_out.data, 'LineWidth',1)
+% % plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,4), 'LineWidth',1)
+% axis([0 tf 0 1.2])
+% set(gca,'FontSize',11)
+% title('Traditional Pulsed approach - Cell Populations and Drug input', 'fontsize',12)
+% xlabel('Days', 'fontsize',12)
+% ylabel('Cells (10^{11}), Drug (mg/m^2)', 'fontsize',12)
+% legend('N', 'T', 'I', 'v')
+% 
+% % Save the results
+% if (save == 1)    
+%     % Print - All populations & Drug input
+%     I_0 = int8(I0*100);
+%     saveas(fig_pulsed, sprintf('figures\\I_0=0%d_pulsed', I_0),'fig');
+%     print(fig_pulsed,'-dpng',sprintf('figures\\I_0=0%d_pulsed.png', I_0));    
+% end
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                              Print-DrugFree!                            %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-
-v_bb_ts = timeseries(0);
-
-sim('model\\model_depillis_bangbang',simTime);
-
-
-fig_drugfree = figure();
-hold on;
-plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,1), 'LineWidth',1)
-plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,2), 'LineWidth',1)
-plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,3), 'LineWidth',1)
-axis([0 tf 0 1])
-set(gca,'FontSize',11)
-I_0 = int8(I0*100);
-title(sprintf('Drug-free Cell Populations (I_0=0.%d)', I_0), 'fontsize',12)
-xlabel('Days', 'fontsize',12)
-ylabel('Cells (10^{11})', 'fontsize',12)
-legend('N', 'T', 'I')
-
-% Save the results
-if (save == 1)    
-    % Print - All populations & Drug input    
-    saveas(fig_drugfree, sprintf('figures\\I_0=0%d_drugfree', I_0),'fig');
-    print(fig_drugfree,'-dpng',sprintf('figures\\I_0=0%d_drugfree.png', I_0));    
-end
+% 
+% v_bb_ts = timeseries(0);
+% 
+% sim('model\\model_depillis_bangbang',simTime);
+% 
+% 
+% fig_drugfree = figure();
+% hold on;
+% FIX plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,1), 'LineWidth',1)
+% FIX plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,2), 'LineWidth',1)
+% FIX plot(pulsed_Cells_out.time,pulsed_Cells_out.data(:,3), 'LineWidth',1)
+% axis([0 tf 0 1])
+% set(gca,'FontSize',11)
+% title(sprintf('Drug-free Cell Populations (I_0=0.%d)', I_0), 'fontsize',12)
+% xlabel('Days', 'fontsize',12)
+% ylabel('Cells (10^{11})', 'fontsize',12)
+% legend('N', 'T', 'I')
+% 
+% % Save the results
+% if (save == 1)    
+%     % Print - All populations & Drug input    
+%     saveas(fig_drugfree, sprintf('figures\\I_0=0%d_drugfree', I_0),'fig');
+%     print(fig_drugfree,'-dpng',sprintf('figures\\I_0=0%d_drugfree.png', I_0));    
+% end
