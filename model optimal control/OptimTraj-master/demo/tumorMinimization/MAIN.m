@@ -31,8 +31,8 @@ w4 = 40;
 N0 = 1;       % No chemotherapy side effects yet
 T0 = 0.25;    % Tumor has already grown
 
-I0 = 0.10;  % Immune system Low
-% I0 = 0.15;    % Immune system High
+% I0 = 0.10;  % Immune system Low
+I0 = 0.15;    % Immune system High
 
 u0 = 0.01;   % Start the chemo
 
