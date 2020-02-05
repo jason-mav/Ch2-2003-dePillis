@@ -97,12 +97,15 @@ P.guess.control = [v_Upp, v_Low];
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                 Objective and Dynamic functions                         %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+% States denoted by x: 
+%    normal, tumor, immune cells & drug concentration.
+% Input denoted by u:
+%    drug dosage.
 
 % Dynamics function:
 P.func.dynamics = @(t,x,u)( tumorDynamics(x,u) );
 
 % Objective function:
-% P.func.bndObj = @(t0,x0,tF,xF)( xF(2) );  % Minimize tumor // Maximize final height -xF(1)/10000
 
 P.func.pathObj = @(t,x,u)( w1*x(2,end) +w2*tumorIntegrand(x) +w3*max(x(2,:)) +w4*u );
 % P.func.pathObj = @(t,x,u)( ones(size(t)) ); % minimize time
@@ -142,15 +145,15 @@ x = soln(end).interp.state(t);
 v = soln(end).interp.control(t);
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-%                           Edit Input!                                   %
+%                             Bang Bang                                   %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
-% o.c. might have some negative values
-for i=1:length(v)
-    if (v(i))<0
-        v(i) = 0;
-    end
-end
+% % o.c. might have some negative values
+% for i=1:length(v)
+%     if (v(i))<0
+%         v(i) = 0;
+%     end
+% end
 
 max_dose = max(v);
 if I0 == 0.15
@@ -158,14 +161,13 @@ if I0 == 0.15
 else % 0.10
     dose_thresh = 0.1455*max_dose; 
 end
+
 close all;
 
 % Convert to bang bang
-v_bb = v;
+v_bb = zeros(1,length(v)); % initialize
 for i=1:length(v)
-    if (v(i)) < dose_thresh
-        v_bb(i) = 0;
-    else
+    if (v(i)) >= dose_thresh
         v_bb(i) = v_max; %max_dose;
     end
 end
@@ -175,6 +177,7 @@ v_bb_ts = timeseries(v_bb);
 I0_ts = timeseries(I0);
 total_drug_ts = timeseries(sum(v_bb));
 
+% Simulate Bang Bang
 simTime = tf;
 sim('model\\model_depillis_bangbang',simTime);
 
