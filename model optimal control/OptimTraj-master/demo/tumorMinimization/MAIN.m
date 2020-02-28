@@ -256,7 +256,7 @@ hold on;
 plot(t,x(1,:),'LineWidth',1)
 plot(t,x(2,:), 'LineWidth',1)
 plot(t,x(3,:), 'LineWidth',1)
-stairs(t,v, 'LineWidth',1)
+stairs(t,v, 'LineWidth',1,'color',[0,0,0])
 % plot(t,x(4,:), 'LineWidth',1)
 axis([0 tf 0 2])
 set(gca,'FontSize',11)
